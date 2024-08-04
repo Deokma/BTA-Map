@@ -1,7 +1,0 @@
-{
-	"modid": "minimap",
-	"version": "1.5.0",
-	"transformers": [
-		"b100.minimap.asm.MinimapTransformers"
-	]
-}
