@@ -64,7 +64,7 @@ public class TileColorsBTA extends TileColors {
 	public int getTileColor(World world, int x, int y, int z, Block block) {
 		BlockModel<?> model = BlockModelDispatcher.getInstance().getDispatch(block);
 		
-		IconCoordinate texture = model.getBlockTexture(world, x, y, z, Side.TOP);
+		IconCoordinate texture = model.getBlockTextureFromSideAndMetadata(Side.TOP, world.getBlockMetadata(x, y, z));
 		
 		Integer color = mapColors.get(texture);
 		if(color == null) {
