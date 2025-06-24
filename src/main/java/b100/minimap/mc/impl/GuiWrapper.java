@@ -1,12 +1,14 @@
-package b100.minimap.minecraftHelper.impl;
+package b100.minimap.mc.impl;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Screen;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import b100.minimap.gui.CancelEventException;
 import b100.minimap.gui.GuiScreen;
 
-public class GuiWrapper extends net.minecraft.client.gui.GuiScreen {
+public class GuiWrapper extends Screen {
 	
 	public GuiScreen minimapGui;
 	public int mouseX;
@@ -19,10 +21,11 @@ public class GuiWrapper extends net.minecraft.client.gui.GuiScreen {
 	
 	public GuiWrapper(GuiScreen minimapGui) {
 		this.minimapGui = minimapGui;
+		mc = minimapGui.minimap.mc;
 	}
 	
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float renderPartialTicks) {
+	public void render(int mouseX, int mouseY, float renderPartialTicks) {
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		
@@ -87,21 +90,18 @@ public class GuiWrapper extends net.minecraft.client.gui.GuiScreen {
 			}catch (CancelEventException e) {}
 		}
 	}
-	
+
 	@Override
-	public void handleInput() {
-	}
-	
-	@Override
-	public void onClosed() {
+	public void removed() {
 		Keyboard.enableRepeatEvents(false);
-		
+
 		minimapGui.onGuiClosed();
 	}
 
-	public void onOpened() {
+	@Override
+	public void opened(Minecraft mc, int width, int height) {
 		Keyboard.enableRepeatEvents(true);
-		
+
 		minimapGui.onGuiOpened();
 	}
 	

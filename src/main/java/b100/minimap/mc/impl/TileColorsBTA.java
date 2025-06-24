@@ -1,4 +1,4 @@
-package b100.minimap.minecraftHelper.impl;
+package b100.minimap.mc.impl;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -13,16 +13,16 @@ import net.minecraft.client.option.GameSettings;
 import net.minecraft.client.option.Option;
 import net.minecraft.client.render.block.model.BlockModel;
 import net.minecraft.client.render.block.model.BlockModelDispatcher;
-import net.minecraft.client.render.stitcher.AtlasStitcher;
-import net.minecraft.client.render.stitcher.IconCoordinate;
-import net.minecraft.client.render.stitcher.TextureRegistry;
+import net.minecraft.client.render.texture.stitcher.AtlasStitcher;
+import net.minecraft.client.render.texture.stitcher.IconCoordinate;
+import net.minecraft.client.render.texture.stitcher.TextureRegistry;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 
 public class TileColorsBTA extends TileColors {
 	
-	public static final TileColorsBTA instance = new TileColorsBTA(Minecraft.getMinecraft(Minecraft.class));
+	public static final TileColorsBTA instance = new TileColorsBTA(Minecraft.getMinecraft());
 	
 	public Minecraft mc;
 	

@@ -1,5 +1,6 @@
 package b100.minimap.gui.waypoint;
 
+import net.minecraft.core.entity.player.Player;
 import org.lwjgl.input.Keyboard;
 
 import b100.minimap.gui.ColorListener;
@@ -16,7 +17,7 @@ import b100.minimap.gui.GuiTextComponentInteger;
 import b100.minimap.gui.GuiTextElement;
 import b100.minimap.gui.GuiTextField;
 import b100.minimap.gui.TextComponentListener;
-import b100.minimap.minecraftHelper.Player;
+import b100.minimap.mc.IPlayer;
 import b100.minimap.waypoint.Waypoint;
 import net.minecraft.core.util.helper.MathHelper;
 
@@ -60,11 +61,11 @@ public abstract class GuiEditWaypointBase extends GuiScreen implements TextCompo
 	}
 	
 	public void setPlayerOffset() {
-		Player player = minimap.minecraftHelper.getThePlayer();
+		IPlayer player = minimap.minecraftHelper.getThePlayer();
 		
-		this.playerOffsetX = MathHelper.floor_double(player.getPosX(1.0f));
-		this.playerOffsetY = MathHelper.floor_double(player.getPosY(1.0f));
-		this.playerOffsetZ = MathHelper.floor_double(player.getPosZ(1.0f));
+		this.playerOffsetX = MathHelper.floor(player.getPosX(1.0f));
+		this.playerOffsetY = MathHelper.floor(player.getPosY(1.0f));
+		this.playerOffsetZ = MathHelper.floor(player.getPosZ(1.0f));
 	}
 
 	@Override

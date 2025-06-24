@@ -1,4 +1,4 @@
-package b100.minimap.minecraftHelper;
+package b100.minimap.mc;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,6 +9,8 @@ import b100.minimap.render.WorldListener;
 import b100.minimap.render.block.BlockRenderManager;
 import b100.minimap.render.block.TileColors;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.texture.Texture;
+import net.minecraft.core.entity.player.Player;
 import net.minecraft.core.world.World;
 
 public interface IMinecraftHelper {
@@ -31,11 +33,11 @@ public interface IMinecraftHelper {
 	
 	public void removeWorldListener(World world, WorldListener listener);
 	
-	public Player getThePlayer();
+	public IPlayer getThePlayer();
 	
 	public int generateTexture();
 	
-	public int getTexture(String path);
+	public Texture getTexture(String path);
 	
 	public BufferedImage getTextureAsImage(String path);
 	

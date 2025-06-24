@@ -2,10 +2,11 @@ package b100.minimap.render.block;
 
 import b100.minimap.Minimap;
 import net.minecraft.core.block.Block;
+import net.minecraft.core.block.Blocks;
 
 public class BlockRenderManager {
 	
-	public RenderType[] renderTypes = new RenderType[Block.blocksList.length];
+	public RenderType[] renderTypes = new RenderType[Blocks.blocksList.length];
 	
 	public BlockRenderManager(TileColors tileColors) {
 		addDefaultColors();
@@ -22,7 +23,7 @@ public class BlockRenderManager {
 	}
 	
 	public void setRenderType(Block block, RenderType renderType) {
-		renderTypes[block.id] = renderType;
+		renderTypes[block.id()] = renderType;
 	}
 	
 	public RenderType getRenderType(int id) {

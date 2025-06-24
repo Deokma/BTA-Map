@@ -1,4 +1,4 @@
-package b100.minimap.minecraftHelper;
+package b100.minimap.mc;
 
 public interface IDimension extends Comparable<IDimension> {
 	

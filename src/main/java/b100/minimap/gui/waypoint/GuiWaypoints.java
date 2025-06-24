@@ -10,7 +10,7 @@ import b100.minimap.gui.GuiNavigationContainer;
 import b100.minimap.gui.GuiNavigationContainer.Position;
 import b100.minimap.gui.GuiScreen;
 import b100.minimap.gui.GuiScrollableContainer;
-import b100.minimap.minecraftHelper.IDimension;
+import b100.minimap.mc.IDimension;
 import b100.minimap.utils.WaypointSorter;
 import b100.minimap.waypoint.Waypoint;
 

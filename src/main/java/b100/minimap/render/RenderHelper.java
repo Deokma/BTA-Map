@@ -1,12 +1,12 @@
 package b100.minimap.render;
 
 import b100.minimap.Minimap;
-import net.minecraft.client.render.FontRenderer;
+import net.minecraft.client.render.Font;
 import net.minecraft.client.render.tessellator.Tessellator;
 
 public class RenderHelper {
 	
-	public FontRenderer fontRenderer = Minimap.instance.mc.fontRenderer;
+	public Font font = Minimap.instance.mc.font;
 	
 	public void drawIcon(Tessellator tessellator, double x, double y, double iconSize, double zLevel, Double angle) {
 		double x0 = x - (iconSize / 2);
@@ -110,11 +110,11 @@ public class RenderHelper {
 	}
 	
 	public void drawString(String text, int x, int y, int color, boolean shadow) {
-		fontRenderer.drawString(text, x, y, color, shadow);
+		font.drawString(text, x, y, color, shadow);
 	}
 	
 	public int getStringWidth(String text) {
-		return fontRenderer.getStringWidth(text);
+		return font.getStringWidth(text);
 	}
 
 }

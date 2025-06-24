@@ -1,6 +1,10 @@
 package b100.minimap;
 
 import static org.lwjgl.opengl.GL11.*;
+
+import b100.minimap.mc.IMinecraftHelper;
+import b100.minimap.mc.impl.GuiUtilsImpl;
+import b100.minimap.mc.impl.MinecraftHelperImpl;
 import org.lwjgl.input.Keyboard;
 
 import java.io.File;
@@ -15,9 +19,6 @@ import b100.minimap.gui.GuiScreen;
 import b100.minimap.gui.IGuiUtils;
 import b100.minimap.gui.waypoint.GuiCreateWaypoint;
 import b100.minimap.gui.waypoint.GuiWaypoints;
-import b100.minimap.minecraftHelper.IMinecraftHelper;
-import b100.minimap.minecraftHelper.impl.GuiUtilsImpl;
-import b100.minimap.minecraftHelper.impl.MinecraftHelperImpl;
 import b100.minimap.render.MapRender;
 import b100.minimap.render.block.BlockRenderManager;
 import b100.minimap.render.block.TileColors;
@@ -36,7 +37,7 @@ public class Minimap {
 	}
 
 	public IMinecraftHelper minecraftHelper = new MinecraftHelperImpl();
-	public Minecraft mc = Minecraft.getMinecraft(Minecraft.class);
+	public Minecraft mc = Minecraft.getMinecraft();
 	public MapRender mapRender;
 	public World theWorld;
 	public Config config;
@@ -119,7 +120,7 @@ public class Minimap {
 	}
 
 	public void onRenderGui(float partialTicks) {
-		World newWorld = mc.theWorld;
+		World newWorld = mc.currentWorld;
 		if(newWorld != theWorld) {
 			onWorldChange(newWorld);
 		}

@@ -2,18 +2,18 @@ package b100.minimap.utils;
 
 import java.util.Comparator;
 
-import b100.minimap.minecraftHelper.Player;
+import b100.minimap.mc.IPlayer;
 import b100.minimap.waypoint.Waypoint;
 
 public class WaypointSorter implements Comparator<Waypoint> {
 	
-	public Player player;
+	public IPlayer player;
 	
-	public WaypointSorter(Player player) {
+	public WaypointSorter(IPlayer player) {
 		this.player = player;
 	}
 	
-	public double getDistance(Waypoint waypoint, Player player) {
+	public double getDistance(Waypoint waypoint, IPlayer player) {
 		double dx = (waypoint.x + 0.5) - player.getPosX(1.0f);
 		double dy = (waypoint.y + 0.5) - player.getPosY(1.0f);
 		double dz = (waypoint.z + 0.5) - player.getPosZ(1.0f);

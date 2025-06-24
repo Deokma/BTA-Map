@@ -1,6 +1,6 @@
-package b100.minimap.minecraftHelper;
+package b100.minimap.mc;
 
-public interface Player {
+public interface IPlayer {
 	
 	public double getPosX(float partialTicks);
 	

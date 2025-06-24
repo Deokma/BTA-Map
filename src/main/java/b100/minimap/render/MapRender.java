@@ -13,11 +13,13 @@ import java.util.Map;
 
 import b100.minimap.Minimap;
 import b100.minimap.config.MapConfig;
-import b100.minimap.minecraftHelper.IDimension;
-import b100.minimap.minecraftHelper.Player;
+import b100.minimap.mc.IDimension;
+import b100.minimap.mc.IPlayer;
 import b100.minimap.render.style.MapStyle;
 import b100.minimap.waypoint.Waypoint;
 import net.minecraft.client.render.tessellator.Tessellator;
+import net.minecraft.client.render.texture.Texture;
+import net.minecraft.core.entity.player.Player;
 import net.minecraft.core.util.helper.MathHelper;
 import net.minecraft.core.world.World;
 
@@ -96,14 +98,14 @@ public class MapRender implements WorldListener {
 	}
 
 	public void renderMap(float partialTicks) {
-		Player player = minimap.minecraftHelper.getThePlayer();
+		IPlayer player = minimap.minecraftHelper.getThePlayer();
 
 		playerPosX = player.getPosX(partialTicks);
 		playerPosY = player.getPosY(partialTicks);
 		playerPosZ = player.getPosZ(partialTicks);
 
-		playerChunkX = MathHelper.floor_double(playerPosX) >> 4;
-		playerChunkZ = MathHelper.floor_double(playerPosZ) >> 4;
+		playerChunkX = MathHelper.floor(playerPosX) >> 4;
+		playerChunkZ = MathHelper.floor(playerPosZ) >> 4;
 
 		playerRotation = player.getRotationYaw();
 
@@ -273,8 +275,8 @@ public class MapRender implements WorldListener {
 
 		boolean startedDrawing = false;
 
-		playerBlockX = MathHelper.floor_double(playerPosX);
-		playerBlockZ = MathHelper.floor_double(playerPosZ);
+		playerBlockX = MathHelper.floor(playerPosX);
+		playerBlockZ = MathHelper.floor(playerPosZ);
 
 		int wh = mapWidth / 2;
 		int hh = mapHeight / 2;
@@ -321,9 +323,7 @@ public class MapRender implements WorldListener {
 	}
 
 	public void renderPlayerArrow() {
-		int tex = minimap.minecraftHelper.getTexture("/assets/minimap/player_arrow.png");
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, tex);
+		minimap.minecraftHelper.getTexture("/assets/minimap/player_arrow.png").bind();
 		glColor3d(1.0, 0.0, 0.0);
 
 		Double angle = null;
@@ -346,11 +346,11 @@ public class MapRender implements WorldListener {
 			return;
 		}
 
-		int waypointTex = minimap.minecraftHelper.getTexture("/assets/minimap/waypoint.png");
-		int waypointArrowTex = minimap.minecraftHelper.getTexture("/assets/minimap/waypoint_arrow.png");
+		Texture waypointTex = minimap.minecraftHelper.getTexture("/assets/minimap/waypoint.png");
+		Texture waypointArrowTex = minimap.minecraftHelper.getTexture("/assets/minimap/waypoint_arrow.png");
 
-		glBindTexture(GL_TEXTURE_2D, waypointTex);
-		int currentTex = waypointTex;
+		waypointTex.bind();
+		Texture currentTex = waypointTex;
 
 		IDimension currentDimension = minimap.worldData.dimension;
 		for (int i=0; i < waypoints.size(); i++) {
@@ -433,13 +433,13 @@ public class MapRender implements WorldListener {
 
 			if (isOnMap) {
 				if (currentTex != waypointTex) {
-					glBindTexture(GL_TEXTURE_2D, waypointTex);
+					waypointTex.bind();
 					currentTex = waypointTex;
 				}
 			} else {
 				angle = Math.atan2(-offsetZSmooth, offsetXSmooth);
 				if (currentTex != waypointArrowTex) {
-					glBindTexture(GL_TEXTURE_2D, waypointArrowTex);
+					waypointArrowTex.bind();
 					currentTex = waypointArrowTex;
 				}
 				zLevel = 100.0f;
@@ -472,7 +472,7 @@ public class MapRender implements WorldListener {
 
 				glEnable(GL_TEXTURE_2D);
 				renderHelper.drawString(waypoint.name, x1, y1, 0xFFFFFFFF, false);
-				currentTex = 0;
+				currentTex = null;
 
 				glPopMatrix();
 			}

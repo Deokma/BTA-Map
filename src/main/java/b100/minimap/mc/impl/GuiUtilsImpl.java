@@ -1,4 +1,4 @@
-package b100.minimap.minecraftHelper.impl;
+package b100.minimap.mc.impl;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -18,17 +18,17 @@ public class GuiUtilsImpl implements IGuiUtils {
 	
 	@Override
 	public void drawString(String string, int x, int y, int color) {
-		mc.fontRenderer.drawStringWithShadow(string, x, y, color);
+		mc.font.drawStringWithShadow(string, x, y, color);
 	}
 
 	@Override
 	public void drawCenteredString(String string, int x, int y, int color) {
-		mc.fontRenderer.drawCenteredString(string, x, y, color);
+		mc.font.drawCenteredString(string, x, y, color);
 	}
 
 	@Override
 	public int getStringWidth(String string) {
-		return mc.fontRenderer.getStringWidth(string);
+		return mc.font.getStringWidth(string);
 	}
 
 	@Override
@@ -70,10 +70,10 @@ public class GuiUtilsImpl implements IGuiUtils {
 	public void displayGui(GuiScreen screen) {
 		if(screen != null) {
 			GuiWrapper wrapper = new GuiWrapper(screen);
-			mc.displayGuiScreen(wrapper);
-			wrapper.onOpened();
+			mc.displayScreen(wrapper);
+			wrapper.opened(mc, wrapper.width, wrapper.height);
 		}else {
-			mc.displayGuiScreen(null);
+			mc.displayScreen(null);
 		}
 	}
 
@@ -88,7 +88,7 @@ public class GuiUtilsImpl implements IGuiUtils {
 
 	@Override
 	public void drawIcon(int icon, int x, int y, int color) {
-		glBindTexture(GL_TEXTURE_2D, mc.renderEngine.getTexture("/minimap/minimap/gui.png"));
+		mc.textureManager.loadTexture("/minimap/minimap/gui.png").bind();
 		
 		int a = color >> 24 & 0xFF;
 		int r = color >> 16 & 0xFF;

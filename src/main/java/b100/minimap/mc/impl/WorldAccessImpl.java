@@ -1,4 +1,4 @@
-package b100.minimap.minecraftHelper.impl;
+package b100.minimap.mc.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import b100.minimap.render.WorldListener;
 import net.minecraft.core.block.entity.TileEntity;
 import net.minecraft.core.entity.Entity;
-import net.minecraft.core.entity.player.EntityPlayer;
+import net.minecraft.core.entity.player.Player;
 import net.minecraft.core.sound.SoundCategory;
 import net.minecraft.core.world.LevelListener;
 
@@ -32,7 +32,7 @@ public class WorldAccessImpl implements LevelListener {
 	}
 
 	@Override
-	public void levelEvent(EntityPlayer var1, int var2, int var3, int var4, int var5, int var6) {
+	public void levelEvent(Player var1, int var2, int var3, int var4, int var5, int var6) {
 		
 	}
 	

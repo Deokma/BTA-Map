@@ -1,11 +1,11 @@
-package b100.minimap.minecraftHelper.impl;
+package b100.minimap.mc.impl;
 
-import b100.minimap.minecraftHelper.Player;
-import net.minecraft.client.entity.player.EntityPlayerSP;
+import b100.minimap.mc.IPlayer;
+import net.minecraft.client.entity.player.PlayerLocal;
 
-public class PlayerWrapper implements Player {
+public class PlayerWrapper implements IPlayer {
 	
-	public EntityPlayerSP player;
+	public PlayerLocal player;
 
 	@Override
 	public double getRotationYaw() {

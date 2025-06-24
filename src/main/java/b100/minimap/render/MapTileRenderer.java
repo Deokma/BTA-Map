@@ -11,6 +11,7 @@ import b100.minimap.render.block.TileColors;
 import b100.minimap.utils.Utils;
 import net.minecraft.client.render.block.color.BlockColorDispatcher;
 import net.minecraft.core.block.Block;
+import net.minecraft.core.block.Blocks;
 import net.minecraft.core.world.World;
 
 public class MapTileRenderer {
@@ -92,7 +93,7 @@ public class MapTileRenderer {
 				if(minHeight != -1 && maxHeight != -1) {
 					for(int y = minHeight; y <= maxHeight; y++) {
 						int id = world.getBlockId(x, y, z);
-						Block block = Block.getBlock(id);
+						Block block = Blocks.getBlock(id);
 						RenderType renderType = blockColors.getRenderType(id);
 
 						if(renderAll && renderType == RenderType.INVISIBLE && id > 0) {

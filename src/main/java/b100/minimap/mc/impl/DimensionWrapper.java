@@ -1,6 +1,6 @@
-package b100.minimap.minecraftHelper.impl;
+package b100.minimap.mc.impl;
 
-import b100.minimap.minecraftHelper.IDimension;
+import b100.minimap.mc.IDimension;
 import net.minecraft.core.world.Dimension;
 
 public class DimensionWrapper implements IDimension {

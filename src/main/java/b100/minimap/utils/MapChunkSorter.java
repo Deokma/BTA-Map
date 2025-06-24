@@ -2,18 +2,18 @@ package b100.minimap.utils;
 
 import java.util.Comparator;
 
-import b100.minimap.minecraftHelper.Player;
+import b100.minimap.mc.IPlayer;
 import b100.minimap.render.MapChunk;
 
 public class MapChunkSorter implements Comparator<MapChunk>{
 
-	public Player player;
+	public IPlayer player;
 	
-	public MapChunkSorter(Player player) {
+	public MapChunkSorter(IPlayer player) {
 		this.player = player;
 	}
 	
-	public double getDistance(MapChunk chunk, Player player) {
+	public double getDistance(MapChunk chunk, IPlayer player) {
 		double dx = (chunk.getPosX() + 0.5) - player.getPosX(1.0f);
 		double dz = (chunk.getPosZ() + 0.5) - player.getPosZ(1.0f);
 		

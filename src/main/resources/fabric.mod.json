@@ -15,11 +15,7 @@
   "license": "CC0-1.0",
 
   "environment": "*",
-  "entrypoints": {
-    "main": [
-      //"b100.minimap.Minimap"
-    ]
-  },
+  "entrypoints": {},
 
   "mixins": [
     "minimap.mixins.json"

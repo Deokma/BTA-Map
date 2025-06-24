@@ -1,4 +1,4 @@
-package b100.minimap.minecraftHelper.impl;
+package b100.minimap.mc.impl;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -10,37 +10,38 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import b100.minimap.mc.IDimension;
+import b100.minimap.mc.IMinecraftHelper;
+import b100.minimap.mc.IPlayer;
 import com.b100.utils.ReflectUtils;
 
-import b100.minimap.minecraftHelper.IDimension;
-import b100.minimap.minecraftHelper.IMinecraftHelper;
-import b100.minimap.minecraftHelper.Player;
 import b100.minimap.render.WorldListener;
 import b100.minimap.render.block.BlockRenderManager;
 import b100.minimap.render.block.RenderType;
 import b100.minimap.render.block.TileColors;
 import net.minecraft.client.GLAllocation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.EntityPlayerSP;
-import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.net.handler.NetClientHandler;
+import net.minecraft.client.entity.player.PlayerLocal;
+import net.minecraft.client.gui.chat.ScreenChat;
+import net.minecraft.client.net.handler.PacketHandlerClient;
+import net.minecraft.client.render.texture.Texture;
 import net.minecraft.client.world.WorldClient;
+import net.minecraft.client.world.WorldClientMP;
+import net.minecraft.client.world.save.SaveHandlerClientSP;
 import net.minecraft.core.Global;
-import net.minecraft.core.block.Block;
-import net.minecraft.core.entity.player.EntityPlayer;
-import net.minecraft.core.item.Item;
+import net.minecraft.core.block.Blocks;
 import net.minecraft.core.item.ItemStack;
+import net.minecraft.core.item.Items;
 import net.minecraft.core.net.NetworkManager;
 import net.minecraft.core.util.helper.Buffer;
 import net.minecraft.core.util.helper.ChatAllowedCharacters;
 import net.minecraft.core.world.Dimension;
 import net.minecraft.core.world.World;
 import net.minecraft.core.world.save.SaveHandlerBase;
-import net.minecraft.core.world.save.SaveHandlerClientSP;
 
 public class MinecraftHelperImpl implements IMinecraftHelper {
 
-	private Minecraft mc = Minecraft.getMinecraft(Minecraft.class);
+	private Minecraft mc = Minecraft.getMinecraft();
 	private PlayerWrapper playerWrapper = new PlayerWrapper();
 	public WorldAccessImpl worldAccessImpl = new WorldAccessImpl();
 	private Map<Dimension, DimensionWrapper> dimensionWrappers = new HashMap<>();
@@ -57,27 +58,27 @@ public class MinecraftHelperImpl implements IMinecraftHelper {
 
 	@Override
 	public int getDisplayWidth() {
-		return mc.resolution.width;
+		return mc.resolution.getWidthScreenCoords();
 	}
 
 	@Override
 	public int getDisplayHeight() {
-		return mc.resolution.height;
+		return mc.resolution.getHeightScreenCoords();
 	}
 
 	@Override
 	public int getScaledWidth() {
-		return mc.resolution.scaledWidth;
+		return mc.resolution.getScaledWidthScreenCoords();
 	}
 
 	@Override
 	public int getScaledHeight() {
-		return mc.resolution.scaledHeight;
+		return mc.resolution.getScaledHeightScreenCoords();
 	}
 
 	@Override
 	public int getGuiScaleFactor() {
-		return mc.resolution.scale;
+		return mc.resolution.getScale();
 	}
 
 	@Override
@@ -91,8 +92,8 @@ public class MinecraftHelperImpl implements IMinecraftHelper {
 	}
 
 	@Override
-	public Player getThePlayer() {
-		EntityPlayerSP player = mc.thePlayer;
+	public IPlayer getThePlayer() {
+		PlayerLocal player = mc.thePlayer;
 		if(player != playerWrapper.player) {
 			playerWrapper.player = player;
 		}
@@ -105,8 +106,8 @@ public class MinecraftHelperImpl implements IMinecraftHelper {
 	}
 
 	@Override
-	public int getTexture(String path) {
-		return mc.renderEngine.getTexture(path);
+	public Texture getTexture(String path) {
+		return mc.textureManager.loadTexture(path);
 	}
 
 	@Override
@@ -141,16 +142,16 @@ public class MinecraftHelperImpl implements IMinecraftHelper {
 
 	@Override
 	public boolean isChatOpened() {
-		return mc.currentScreen instanceof GuiChat;
+		return mc.currentScreen instanceof ScreenChat;
 	}
 
 	@Override
 	public boolean doesPlayerHaveCompass() {
 		PlayerWrapper wrapper = (PlayerWrapper) getThePlayer();
-		EntityPlayer player = wrapper.player;
-		for(int i=0; i < player.inventory.getSizeInventory(); i++) {
-			ItemStack stack = player.inventory.getStackInSlot(i);
-			if(stack != null && stack.getItem() == Item.toolCompass) {
+		PlayerLocal player = wrapper.player;
+		for(int i=0; i < player.inventory.getContainerSize(); i++) {
+			ItemStack stack = player.inventory.getItem(i);
+			if(stack != null && stack.getItem() == Items.TOOL_COMPASS) {
 				return true;
 			}
 		}
@@ -164,22 +165,22 @@ public class MinecraftHelperImpl implements IMinecraftHelper {
 
 	@Override
 	public boolean isMultiplayer(World world) {
-		return world instanceof WorldClient;
+		return world instanceof WorldClientMP;
 	}
 
 	@Override
 	public String getWorldDirectoryName(World world) {
-		SaveHandlerClientSP saveHandler = (SaveHandlerClientSP) world.getSaveHandler();
+		SaveHandlerBase saveHandler = (SaveHandlerBase) world.getSaveHandler();
 		File saveDirectory = ReflectUtils.getValue(ReflectUtils.getField(SaveHandlerBase.class, "saveDirectory"), saveHandler, File.class);
 		return saveDirectory.getName();
 	}
 
 	@Override
 	public String getServerName(World world) {
-		WorldClient worldClient = (WorldClient) world;
-		NetClientHandler sendQueue = ReflectUtils.getValue(ReflectUtils.getField(WorldClient.class, "sendQueue"), worldClient, NetClientHandler.class);
-		NetworkManager netManager = ReflectUtils.getValue(ReflectUtils.getField(NetClientHandler.class, "netManager"), sendQueue, NetworkManager.class);
-		Socket socket = ReflectUtils.getValue(ReflectUtils.getField(NetworkManager.class, "networkSocket"), netManager, Socket.class);
+		WorldClientMP worldClient = (WorldClientMP) world;
+		PacketHandlerClient sendQueue = ReflectUtils.getValue(ReflectUtils.getField(WorldClientMP.class, "sendQueue"), worldClient, PacketHandlerClient.class);
+		NetworkManager netManager = ReflectUtils.getValue(ReflectUtils.getField(PacketHandlerClient.class, "netManager"), sendQueue, NetworkManager.class);
+		Socket socket = ReflectUtils.getValue(ReflectUtils.getField(NetworkManager.class, "socket"), netManager, Socket.class);
 		return socket.getInetAddress().toString() + ":" + socket.getPort();
 	}
 
@@ -202,23 +203,27 @@ public class MinecraftHelperImpl implements IMinecraftHelper {
 
 	@Override
 	public void setupBlockRenderTypes(BlockRenderManager m) {
-		m.setRenderType(Block.glass, RenderType.INVISIBLE);
-		m.setRenderType(Block.torchCoal, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.GLASS, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.TORCH_COAL, RenderType.INVISIBLE);
 		
-		m.setRenderType(Block.tallgrass, RenderType.INVISIBLE);
-		m.setRenderType(Block.tallgrassFern, RenderType.INVISIBLE);
-		m.setRenderType(Block.flowerRed, RenderType.INVISIBLE);
-		m.setRenderType(Block.flowerYellow, RenderType.INVISIBLE);
-		m.setRenderType(Block.algae, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.TALLGRASS, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.TALLGRASS_FERN, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.FLOWER_RED, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.FLOWER_YELLOW, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.FLOWER_ORANGE, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.FLOWER_PINK, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.FLOWER_LIGHT_BLUE, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.FLOWER_PURPLE, RenderType.INVISIBLE);
+		m.setRenderType(Blocks.ALGAE, RenderType.INVISIBLE);
 
-		m.setRenderType(Block.fluidWaterFlowing, RenderType.TRANSPARENT);
-		m.setRenderType(Block.fluidWaterStill, RenderType.TRANSPARENT);
-		m.setRenderType(Block.ice, RenderType.TRANSPARENT);
+		m.setRenderType(Blocks.FLUID_WATER_FLOWING, RenderType.TRANSPARENT);
+		m.setRenderType(Blocks.FLUID_WATER_STILL, RenderType.TRANSPARENT);
+		m.setRenderType(Blocks.ICE, RenderType.TRANSPARENT);
 	}
 
 	@Override
 	public boolean getEnableCheats() {
-		return mc.theWorld.isClientSide || mc.theWorld.getLevelData().getCheatsEnabled();
+		return mc.currentWorld.isClientSide || mc.currentWorld.getLevelData().getCheatsEnabled();
 	}
 
 	public DimensionWrapper getDimensionWrapper(Dimension dimension) {
@@ -246,7 +251,7 @@ public class MinecraftHelperImpl implements IMinecraftHelper {
 
 	@Override
 	public IDimension getDefaultDimension(World world) {
-		return getDimensionWrapper(Dimension.overworld);
+		return getDimensionWrapper(Dimension.OVERWORLD);
 	}
 	
 	@Override

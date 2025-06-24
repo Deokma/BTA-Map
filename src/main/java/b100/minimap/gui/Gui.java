@@ -1,7 +1,7 @@
 package b100.minimap.gui;
 
 import b100.minimap.Minimap;
-import b100.minimap.minecraftHelper.IMinecraftHelper;
+import b100.minimap.mc.IMinecraftHelper;
 
 public abstract class Gui {
 

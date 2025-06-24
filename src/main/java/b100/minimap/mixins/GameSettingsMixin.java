@@ -1,8 +1,8 @@
 package b100.minimap.mixins;
 
 import b100.minimap.Minimap;
-import b100.minimap.minecraftHelper.impl.TileColorsBTA;
 
+import b100.minimap.mc.impl.TileColorsBTA;
 import net.minecraft.client.option.GameSettings;
 import net.minecraft.client.option.Option;
 
