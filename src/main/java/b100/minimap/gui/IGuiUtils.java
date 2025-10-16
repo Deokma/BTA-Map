@@ -25,5 +25,7 @@ public interface IGuiUtils {
 	public GuiScreen getCurrentScreen();
 	
 	public void displayGui(GuiScreen screen);
+
+	public int createTextureFromImage(java.awt.image.BufferedImage image, boolean filter, boolean repeat);
 	
 }

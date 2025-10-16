@@ -30,6 +30,10 @@ public class WorldData {
 		this.world = world;
 		this.dimension = Minimap.instance.minecraftHelper.getDimensionFromWorld(world);
 	}
+
+	public ChunkStorage getChunkStorage() {
+		return new ChunkStorage(directory, dimension.getId());
+	}
 	
 	public void load() {
 		Minimap.log("Loading world data: '"+directory.getAbsolutePath()+"'");

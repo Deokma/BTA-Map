@@ -6,6 +6,7 @@ import b100.minimap.gui.GuiScreen;
 import b100.minimap.gui.IGuiUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.tessellator.Tessellator;
+import net.minecraft.client.GLAllocation;
 import net.minecraft.core.sound.SoundCategory;
 
 public class GuiUtilsImpl implements IGuiUtils {
@@ -150,6 +151,18 @@ public class GuiUtilsImpl implements IGuiUtils {
 		tessellator.addVertexWithUV(x1, y1, 0, u1, v1);
 		tessellator.addVertexWithUV(x1, y0, 0, u1, v0);
 		tessellator.draw();
+	}
+
+	@Override
+	public int createTextureFromImage(java.awt.image.BufferedImage image, boolean filter, boolean repeat) {
+		int texture = GLAllocation.generateTexture();
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, repeat ? GL_REPEAT : GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, repeat ? GL_REPEAT : GL_CLAMP);
+		b100.minimap.utils.Utils.setTextureImage(texture, image, filter, repeat);
+		return texture;
 	}
 
 }

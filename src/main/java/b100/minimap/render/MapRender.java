@@ -285,7 +285,8 @@ public class MapRender implements WorldListener {
 			MapChunk mapChunk = renderChunksUsed.get(i);
 
 			int distance = Math.max(Math.abs(playerChunkX - mapChunk.getPosX()), Math.abs(playerChunkZ - mapChunk.getPosZ()));
-			if (distance > viewRadius + 2) {
+			// Keep older tiles around a bit longer to avoid visible popping when opening fullscreen
+			if (distance > viewRadius + 6) {
 				renderChunksUsed.remove(i--);
 				setChunkNotInUse(mapChunk);
 				continue;
@@ -546,9 +547,32 @@ public class MapRender implements WorldListener {
 				if (rendered) {
 					colorBuffer.position(0);
 					mapTileManager.setTile(tile, colorBuffer);
+					// Persist hash-based tile for later viewing (force no-light only)
+					try {
+						int[] argbNoLight = new int[16 * 16];
+						java.nio.ByteBuffer bytes = colorBuffer.duplicate();
+						bytes.position(0);
+						for (int y = 0; y < 16; y++) {
+							for (int x = 0; x < 16; x++) {
+								int r = bytes.get() & 0xFF;
+								int g = bytes.get() & 0xFF;
+								int b = bytes.get() & 0xFF;
+								int a = bytes.get() & 0xFF;
+								// store unlit: copy RGB, keep alpha
+								argbNoLight[y * 16 + x] = (a << 24) | (r << 16) | (g << 8) | b;
+							}
+						}
+						b100.minimap.data.ChunkStorage storage = Minimap.instance.worldData.getChunkStorage();
+						String hashNL = storage.computeHashARGB(argbNoLight);
+						storage.saveTileARGB(hashNL, argbNoLight);
+						storage.saveChunkHash(chunkX, chunkZ, hashNL);
+					} catch (Throwable ignore) {}
 				} else {
-					mapTileManager.setTileNotInUse(chunk.tile);
-					chunk.tile = -1;
+					// Try to load from saved disk cache and upload to tile
+					if (!loadSavedHashTile(chunkX, chunkZ, tile)) {
+						mapTileManager.setTileNotInUse(chunk.tile);
+						chunk.tile = -1;
+					}
 				}
 
 				updates++;
@@ -556,6 +580,73 @@ public class MapRender implements WorldListener {
 					return;
 				}
 			}
+		}
+	}
+
+	private void saveChunkHashTile(int chunkX, int chunkZ, IntBuffer rgbaBuffer) {
+		try {
+			// Convert current tile to ARGB int[] (daylight-applied already by renderer if enabled)
+			int[] argb = new int[16 * 16];
+			// RGBA bytes in colorBuffer -> ARGB int
+			ByteBuffer bytes = colorBuffer.duplicate();
+			bytes.position(0);
+			for (int y = 0; y < 16; y++) {
+				for (int x = 0; x < 16; x++) {
+					int r = bytes.get() & 0xFF;
+					int g = bytes.get() & 0xFF;
+					int b = bytes.get() & 0xFF;
+					int a = bytes.get() & 0xFF;
+					argb[y * 16 + x] = (a << 24) | (r << 16) | (g << 8) | b;
+				}
+			}
+			b100.minimap.data.ChunkStorage storage = Minimap.instance.worldData.getChunkStorage();
+			String hashLit = storage.computeHashARGB(argb);
+			storage.saveTileARGB(hashLit, argb);
+			storage.saveChunkHash(chunkX, chunkZ, hashLit);
+
+			// Save no-light variant (force brightness = 1) for daylight view
+			int[] argbNoLight = new int[argb.length];
+			for (int i=0;i<argb.length;i++) {
+				int v = argb[i];
+				int a = (v >>> 24) & 0xFF;
+				int r = (v >>> 16) & 0xFF;
+				int g = (v >>> 8) & 0xFF;
+				int b = (v) & 0xFF;
+				// remove multiplicative lighting by normalizing alpha only
+				argbNoLight[i] = (a << 24) | (r << 16) | (g << 8) | b;
+			}
+			String hashNL = storage.computeHashARGB(argbNoLight);
+			storage.saveTileARGB(hashNL, argbNoLight);
+			storage.saveChunkHash(chunkX, chunkZ, hashNL);
+		} catch (Throwable t) {}
+	}
+
+	private boolean loadSavedHashTile(int chunkX, int chunkZ, int tile) {
+		try {
+			b100.minimap.data.ChunkStorage storage = Minimap.instance.worldData.getChunkStorage();
+			String hash = storage.loadChunkHash(chunkX, chunkZ);
+			if (hash == null) return false;
+			int[] argb = storage.loadTileARGB(hash);
+			if (argb == null || argb.length != 16 * 16) return false;
+			for (int y = 0; y < 16; y++) {
+				for (int x = 0; x < 16; x++) {
+					int v = argb[y * 16 + x];
+					byte a = (byte)((v >> 24) & 0xFF);
+					byte r = (byte)((v >> 16) & 0xFF);
+					byte g = (byte)((v >> 8) & 0xFF);
+					byte b = (byte)(v & 0xFF);
+					int idx = (y * 16 + x) * 4;
+					colorBuffer.put(idx + 0, r);
+					colorBuffer.put(idx + 1, g);
+					colorBuffer.put(idx + 2, b);
+					colorBuffer.put(idx + 3, a);
+				}
+			}
+			colorBuffer.position(0);
+			mapTileManager.setTile(tile, colorBuffer);
+			return true;
+		} catch (Throwable t) {
+			return false;
 		}
 	}
 
@@ -612,12 +703,17 @@ public class MapRender implements WorldListener {
 
 	public void onWorldChange(World world) {
 		mapTileRenderer.onWorldChanged(world);
-
 		this.world = world;
+		// Rebuild tile color palette when world changes (atlas/resources may differ)
+		try {
+			minimap.tileColors.createTileColors();
+		} catch (Throwable ignore) {}
 
 		while(renderChunksUsed.size() > 0) {
 			setChunkNotInUse(renderChunksUsed.remove(0));
 		}
+		// Force full refresh so first frames don't use stale tiles
+		updateAllTiles();
 	}
 
 }

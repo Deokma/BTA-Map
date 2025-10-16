@@ -21,13 +21,13 @@ import net.minecraft.core.util.helper.Side;
 import net.minecraft.core.world.World;
 
 public class TileColorsBTA extends TileColors {
-	
+
 	public static final TileColorsBTA instance = new TileColorsBTA(Minecraft.getMinecraft());
-	
+
 	public Minecraft mc;
-	
+
 	public final Map<IconCoordinate, Integer> mapColors = new HashMap<>();
-	
+
 	private TileColorsBTA(Minecraft minecraft) {
 		this.mc = minecraft;
 	}
@@ -35,48 +35,45 @@ public class TileColorsBTA extends TileColors {
 	@Override
 	public void createTileColors() {
 		mapColors.clear();
-		
 		AtlasStitcher atlas = TextureRegistry.blockAtlas;
-		BufferedImage atlasImage = atlas.atlas;
-		
+		BufferedImage atlasImage = (atlas != null) ? atlas.atlas : null;
+		if (atlas == null || atlasImage == null) {
+			// Atlas not ready yet (e.g., right after server join). Skip but keep empty map; caller may retry.
+			return;
+		}
 		Set<IconCoordinate> allTextures = new HashSet<>();
 		allTextures.addAll(atlas.textureMap.values());
-		
-		for(IconCoordinate texture : allTextures) {
+		for (IconCoordinate texture : allTextures) {
 			mapColors.put(texture, getAverageColor(atlasImage, texture.iconX, texture.iconY, texture.width, texture.height, 0));
 		}
-		
 		int waterColorOverride;
-		if(mc.gameSettings.biomeWater.value) {
+		if (mc != null && mc.gameSettings != null && mc.gameSettings.biomeWater.value) {
 			waterColorOverride = 0xFF808080;
-		}else {
+		} else {
 			waterColorOverride = 0xFF1828FF;
 		}
-		
 		IconCoordinate water_still = TextureRegistry.blockAtlas.textureMap.get("minecraft:water_still");
 		IconCoordinate water_flowing = TextureRegistry.blockAtlas.textureMap.get("minecraft:water_flowing");
-		
-		mapColors.put(water_still, waterColorOverride);
-		mapColors.put(water_flowing, waterColorOverride);
+		if (water_still != null) mapColors.put(water_still, waterColorOverride);
+		if (water_flowing != null) mapColors.put(water_flowing, waterColorOverride);
 	}
 
 	@Override
 	public int getTileColor(World world, int x, int y, int z, Block block) {
 		BlockModel<?> model = BlockModelDispatcher.getInstance().getDispatch(block);
-		
+
 		IconCoordinate texture = model.getBlockTextureFromSideAndMetadata(Side.TOP, world.getBlockMetadata(x, y, z));
-		
+
 		Integer color = mapColors.get(texture);
 		if(color == null) {
 			return 0xFFFFFF;
 		}
 		return color;
 	}
-	
+
 	public void onOptionValueChanged(GameSettings settings, Option<?> option) {
 		if(option == settings.biomeWater) {
 			createTileColors();
-			
 			Minimap.instance.mapRender.updateAllTiles();
 		}
 	}
