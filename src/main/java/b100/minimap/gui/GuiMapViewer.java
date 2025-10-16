@@ -18,7 +18,6 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class GuiMapViewer extends GuiScreen {
 
-	// Константы
 	private static final int CACHE_LIMIT = 1024;
 	private static final int MAX_PENDING_UPLOADS = 100;
 	private static final int TILE_SIZE = 16;
@@ -27,40 +26,40 @@ public class GuiMapViewer extends GuiScreen {
 	private static final String SCREENSHOT_DIR = "map_screenshots";
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss");
 
-	// Позиция и масштаб карты
+	// Map position and scale
 	private double offsetX;
 	private double offsetY;
 	private double zoom = 2.0;
 
-	// Состояние перетаскивания
+	// Dragging status
 	private boolean dragging = false;
 	private int lastMouseX;
 	private int lastMouseY;
 
-	// Кэширование текстур
+	// Texture caching
 	private final Map<Long, Integer> textureCache = new LinkedHashMap<>(256, 0.75f, true);
 	private final Set<Long> missing = ConcurrentHashMap.newKeySet();
 	private final Set<Long> loading = ConcurrentHashMap.newKeySet();
 	private final Set<Long> retainKeys = new HashSet<>();
 
-	// Асинхронная загрузка
+	// Asynchronous loading
 	private final Queue<PendingTexture> pendingTextures = new ConcurrentLinkedQueue<>();
 	private final Queue<Integer> texturesToDelete = new ConcurrentLinkedQueue<>();
 	private ExecutorService loader;
 
-	// Хранилище и настройки
+	// Storage and Settings
 	private ChunkStorage storageRef;
 	private boolean noLight = true;
 
-	// UI компоненты
+	// UI components
 	private GuiNavigationContainer navTop;
 	private GuiContainerBox navBox;
 
-	// HUD уведомления
+	// HUD notifications
 	private String hudMessage = null;
 	private long hudUntilMs = 0L;
 
-	// Флаги состояния
+	// Status flags
 	private volatile boolean closed = false;
 	private boolean awaitPlayerCenter = false;
 
@@ -186,7 +185,6 @@ public class GuiMapViewer extends GuiScreen {
 			return;
 		}
 
-		// Проверяем, есть ли вообще данные
 		if (!hasAnyStoredData(storage)) {
 			setHudMessage("No map data yet - explore the world!");
 			return;
@@ -205,14 +203,13 @@ public class GuiMapViewer extends GuiScreen {
 
 	private boolean hasAnyStoredData(ChunkStorage storage) {
 		try {
-			// Проверяем есть ли хоть какие-то данные
 			Set<Long> keys = indexPositionsCompat(storage, true);
 			if (keys != null && !keys.isEmpty()) return true;
 
 			keys = indexPositionsCompat(storage, false);
 			return keys != null && !keys.isEmpty();
 		} catch (Exception e) {
-			return true; // На всякий случай считаем что данные есть
+			return true;
 		}
 	}
 
@@ -340,10 +337,9 @@ public class GuiMapViewer extends GuiScreen {
 
 	private void loadChunkAsync(ChunkStorage storage, long key, int cx, int cz) {
 		try {
-			// Пробуем загрузить без освещения (приоритет)
+			// Trying to load without lighting (priority)
 			String hash = loadHashCompat(storage, cx, cz, true);
 
-			// Если нет - пробуем с освещением
 			if (hash == null) {
 				hash = loadHashCompat(storage, cx, cz, false);
 			}
@@ -363,7 +359,7 @@ public class GuiMapViewer extends GuiScreen {
 				missing.add(key);
 			}
 		} catch (Exception e) {
-			// Логируем ошибку для отладки
+			// Logging the error for debugging
 			Minimap.log("Failed to load chunk " + cx + ", " + cz + ": " + e.getMessage());
 			missing.add(key);
 		} finally {
@@ -455,7 +451,7 @@ public class GuiMapViewer extends GuiScreen {
 		double beforeZoom = zoom;
 		zoom *= (dir > 0) ? 1.25 : (dir < 0) ? 0.8 : 1.0;
 
-		// Масштабирование к курсору
+		// Zooming to the cursor
 		double worldX = offsetX + (mouseX - width / 2.0) / beforeZoom;
 		double worldY = offsetY + (mouseY - height / 2.0) / beforeZoom;
 		offsetX = worldX - (mouseX - width / 2.0) / zoom;
